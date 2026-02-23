@@ -7,7 +7,7 @@ import warnings
 import numpy as np
 from src.posture_sensor import PostureSensor
 from src.brain import MoodBrain
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, WebRtcMode
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, WebRtcMode, RTCConfiguration
 
 # Ignore unpickle warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -62,12 +62,16 @@ class PostureTransformer(VideoTransformerBase):
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    # UPDATED SECTION: Fixed Deprecation Warnings
+    # UPDATED SECTION: Added STUN Server for better connectivity
     webrtc_ctx = webrtc_streamer(
         key="posture-filter",
         mode=WebRtcMode.SENDRECV,
-        video_processor_factory=PostureTransformer, # Changed from video_transformer_factory
-        async_processing=True, # Changed from async_transform
+        # This configuration helps bypass restricted networks
+        rtc_configuration=RTCConfiguration(
+            {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+        ),
+        video_processor_factory=PostureTransformer,
+        async_processing=True,
     )
 
 with col2:
