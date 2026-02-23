@@ -7,3 +7,4 @@ opencv-python-headless==4.13.0.92
 joblib==1.5.3
 python-dotenv==1.2.1
 streamlit-webrtc==0.47.9
+av==12.1.0
