@@ -46,7 +46,7 @@ class PostureTransformer(VideoTransformerBase):
                 status = f"SLOUCHING ({int(elapsed)}s)"
                 color = (0, 0, 255)
                 
-                # Logic to trigger Gemini intervention (updates happen in the UI thread)
+                # Logic to trigger Gemini intervention
                 if elapsed > 10:
                     st.session_state.trigger_ai = True
             else:
@@ -62,11 +62,12 @@ class PostureTransformer(VideoTransformerBase):
 col1, col2 = st.columns([2, 1])
 
 with col1:
+    # UPDATED SECTION: Fixed Deprecation Warnings
     webrtc_ctx = webrtc_streamer(
         key="posture-filter",
         mode=WebRtcMode.SENDRECV,
-        video_transformer_factory=PostureTransformer,
-        async_transform=True,
+        video_processor_factory=PostureTransformer, # Changed from video_transformer_factory
+        async_processing=True, # Changed from async_transform
     )
 
 with col2:
