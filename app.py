@@ -46,6 +46,7 @@ class PostureProcessor(VideoProcessorBase):
             cv2.putText(debug_frame, f"Status: {status}", (10, 35), 
                         cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
             
+            # Use same format as input for maximum compatibility
             return av.VideoFrame.from_ndarray(debug_frame, format="bgr24")
         
         return frame
@@ -53,11 +54,22 @@ class PostureProcessor(VideoProcessorBase):
 col1, col2 = st.columns([2, 1])
 
 with col1:
+    # UPDATED SECTION: Multi-server STUN/TURN configuration
     webrtc_streamer(
         key="moodsync",
         mode=WebRtcMode.SENDRECV,
         rtc_configuration=RTCConfiguration(
-            {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+            {"iceServers": [
+                {"urls": ["stun:stun.l.google.com:19302"]},
+                {"urls": ["stun:stun1.l.google.com:19302"]},
+                {"urls": ["stun:stun2.l.google.com:19302"]},
+                # Free TURN relay for strict firewalls
+                {
+                    "urls": ["turn:openrelay.metered.ca:80"],
+                    "username": "openrelayproject",
+                    "credential": "openrelayproject",
+                },
+            ]}
         ),
         video_processor_factory=PostureProcessor,
         async_processing=True,
@@ -68,5 +80,6 @@ with col2:
     st.info(st.session_state.last_msg)
     if st.button("Get Fresh Motivation"):
         with st.spinner("Thinking..."):
+            # Ensure the state_data matches the expected input for MoodBrain
             st.session_state.last_msg = brain.get_intervention("slouching")
             st.rerun()
